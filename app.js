@@ -15,6 +15,14 @@ const app = express();
 /** LOGS*/
 app.use(logger('dev'));
 
+/**SETUP LOWDB */
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const adapter = new FileSync('data/db.json');
+const db = low(adapter);
+
+db.defaults({ records: [] }).write();
+
 /** REQUEST PARSERS */
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

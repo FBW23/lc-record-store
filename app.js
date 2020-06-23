@@ -23,7 +23,7 @@ const router = require('./routes/index');
 const adapter = new FileSync('data/db.json');
 const db = low(adapter);
 
-db.defaults({ records: [] }).write();
+db.defaults({ records: [], users: [] }).write();
 
 /** REQUEST PARSERS */
 app.use(express.json());

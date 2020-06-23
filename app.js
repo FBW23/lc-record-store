@@ -11,6 +11,7 @@ const recordsRouter = require('./routes/records');
 
 /** INIT */
 const app = express();
+console.log('Server is up and running...');
 
 /** LOGS*/
 app.use(logger('dev'));
@@ -18,6 +19,7 @@ app.use(logger('dev'));
 /**SETUP LOWDB */
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+const router = require('./routes/index');
 const adapter = new FileSync('data/db.json');
 const db = low(adapter);
 

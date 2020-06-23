@@ -10,8 +10,31 @@ exports.getRecords = (req, res, next) => {
 
 exports.addRecord = (req, res, next) => {
   const record = req.body;
+  db.get('records')
+    .push({ ...record, ...{ id: Date.now().toString() } })
+    .write();
+  res.status(200).send(record);
+};
 
-  db.get('records').push(record).write();
+exports.getRecord = (req, res, next) => {
+  const { id } = req.params;
+  const record = db.get('records').find({ id: id }).value();
+  res.status(200).send(record);
+};
 
+exports.updateRecord = (req, res, next) => {
+  const { id } = req.params;
+  const newRecord = req.body;
+  const record = db
+    .get('records')
+    .find({ id: id })
+    .assign({ title: newRecord.title })
+    .write();
+  res.status(200).send(record);
+};
+
+exports.deleteRecord = (req, res, next) => {
+  const { id } = req.params;
+  const record = db.get('records').remove({ id: id }).write();
   res.status(200).send(record);
 };

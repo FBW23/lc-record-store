@@ -8,6 +8,7 @@ const logger = require('morgan');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const recordsRouter = require('./routes/records');
+const ordersRouter = require('./routes/orders');
 
 /** INIT */
 const app = express();
@@ -19,11 +20,9 @@ app.use(logger('dev'));
 /**SETUP LOWDB */
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
-const router = require('./routes/index');
 const adapter = new FileSync('data/db.json');
 const db = low(adapter);
-
-db.defaults({ records: [], users: [] }).write();
+db.defaults({ records: [], users: [], orders: [] }).write();
 
 /** REQUEST PARSERS */
 app.use(express.json());
@@ -34,8 +33,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 /** ROUTES */
+// freaks.edu
+// freaks.edu/api/
+// api.freaks.edu
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/records', recordsRouter);
+app.use('/orders', ordersRouter);
 
 module.exports = app;

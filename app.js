@@ -4,6 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
+var createError = require('http-errors');
 
 /** ROUTERS */
 const indexRouter = require('./routes/index');
@@ -24,6 +25,7 @@ app.use(cors());
 /**SETUP LOWDB */
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+const { create } = require('domain');
 const adapter = new FileSync('data/db.json');
 const db = low(adapter);
 db.defaults({ records: [], users: [], orders: [] }).write();
@@ -44,5 +46,24 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/records', recordsRouter);
 app.use('/orders', ordersRouter);
+
+app.use((req, res, next) => {
+  console.log(req);
+  const error = createError(
+    404,
+    `There is not a route '${req.url}' my friend here`
+  );
+  next(error);
+});
+
+/**ERROR MIDDLEWARE */
+// If anyone anywhere in the app calls next(error) then we end up here
+app.use((err, req, res, next) => {
+  res.status(err.status).send({
+    error: {
+      message: err.message,
+    },
+  });
+});
 
 module.exports = app;

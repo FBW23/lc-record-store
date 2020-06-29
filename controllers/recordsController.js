@@ -2,6 +2,7 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('data/db.json');
 const db = low(adapter);
+var createError = require('http-errors');
 
 exports.getRecords = (req, res, next) => {
   const records = db.get('records').value();
@@ -19,6 +20,14 @@ exports.addRecord = (req, res, next) => {
 exports.getRecord = (req, res, next) => {
   const { id } = req.params;
   const record = db.get('records').find({ id: id }).value();
+  if (!record) {
+    const error = createError(
+      400,
+      `There is no record with the id of ${id} dumboooo`
+    );
+    next(error);
+  }
+
   res.status(200).send(record);
 };
 

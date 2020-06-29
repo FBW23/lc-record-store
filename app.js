@@ -4,13 +4,13 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
-var createError = require('http-errors');
 
 /** ROUTERS */
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const recordsRouter = require('./routes/records');
 const ordersRouter = require('./routes/orders');
+const { handleErrorPaths } = require('./middleware/errorPaths');
 
 /** INIT */
 const app = express();
@@ -47,14 +47,7 @@ app.use('/users', usersRouter);
 app.use('/records', recordsRouter);
 app.use('/orders', ordersRouter);
 
-app.use((req, res, next) => {
-  console.log(req);
-  const error = createError(
-    404,
-    `There is not a route '${req.url}' my friend here`
-  );
-  next(error);
-});
+app.use(handleErrorPaths);
 
 /**ERROR MIDDLEWARE */
 // If anyone anywhere in the app calls next(error) then we end up here

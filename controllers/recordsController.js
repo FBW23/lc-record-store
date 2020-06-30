@@ -11,6 +11,16 @@ exports.getRecords = (req, res, next) => {
 
 exports.addRecord = (req, res, next) => {
   const record = req.body;
+
+  // What if there is no body
+  if (Object.keys(record).length === 0) {
+    const error = createError(
+      400,
+      `You need to send the record info in the body of the request`
+    );
+    next(error);
+  }
+
   db.get('records')
     .push({ ...record, ...{ id: Date.now().toString() } })
     .write();
@@ -34,6 +44,13 @@ exports.getRecord = (req, res, next) => {
 exports.updateRecord = (req, res, next) => {
   const { id } = req.params;
   const newRecord = req.body;
+  if (Object.keys(newRecord).length === 0) {
+    const error = createError(
+      400,
+      `Please send the right fields for updating a record`
+    );
+    next(error);
+  }
   const record = db
     .get('records')
     .find({ id: id })

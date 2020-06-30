@@ -8,19 +8,12 @@ const {
   deleteOrder,
 } = require('../controllers/ordersController');
 
-// GET ALL RECORDS /orders/
-router.get('/', getOrders);
+router.route('/').get(getOrders).post(addOrder);
 
-//CREATE A RECORD /orders/
-router.post('/', addOrder);
-
-// GET A SPECIFIC RECORD /orders/:id
-router.get('/:id', getOrder);
-
-// UPDATE A RECORD  /orders/:id
-router.put('/:id', updateOrder);
-
-// DELETE A RECORD /orders/:id
-router.delete('/:id', deleteOrder);
+router
+  .route('/:id')
+  .get(getOrder)
+  .put(updateOrder)
+  .delete(deleteOrder);
 
 module.exports = router;

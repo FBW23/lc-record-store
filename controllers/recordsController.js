@@ -61,6 +61,9 @@ exports.updateRecord = (req, res, next) => {
 
 exports.deleteRecord = (req, res, next) => {
   const { id } = req.params;
-  const record = db.get('records').remove({ id: id }).write();
+  const record = db
+    .get('records')
+    .remove({ id: id })
+    .write();
   res.status(200).send(record);
 };

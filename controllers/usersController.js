@@ -36,5 +36,7 @@ exports.updateUser = (req, res, next) => {
 exports.deleteUser = (req, res, next) => {
   const { id } = req.params;
   const user = db.get('users').remove({ id: id }).write();
-  res.status(200).send({ message: 'It has been done', user: user });
+  res
+    .status(200)
+    .send({ message: 'It has been done', user: user });
 };

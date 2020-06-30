@@ -8,19 +8,12 @@ const {
   deleteRecord,
 } = require('../controllers/recordsController');
 
-// GET ALL RECORDS /records/
-router.get('/', getRecords);
+router.route('/').get(getRecords).post(addRecord);
 
-//CREATE A RECORD /records/
-router.post('/', addRecord);
-
-// GET A SPECIFIC RECORD /records/:id
-router.get('/:id', getRecord);
-
-// UPDATE A RECORD  /records/:id
-router.put('/:id', updateRecord);
-
-// DELETE A RECORD /records/:id
-router.delete('/:id', deleteRecord);
+router
+  .route('/:id')
+  .get(getRecord)
+  .put(updateRecord)
+  .delete(deleteRecord);
 
 module.exports = router;

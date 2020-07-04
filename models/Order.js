@@ -7,7 +7,7 @@ const OrderSchema = new Schema({
     required: true
   },
   record: {
-    type: Number,
+    type: String,
     required: true
   }
 });

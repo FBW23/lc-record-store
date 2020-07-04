@@ -1,69 +1,64 @@
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('data/db.json');
-const db = low(adapter);
-var createError = require('http-errors');
+const Record = require("../models/Record")
+const createError = require('http-errors');
+const { create } = require("../models/Record");
 
-exports.getRecords = (req, res, next) => {
-  const records = db.get('records').value();
-  res.status(200).send(records);
+exports.getRecords = async (req, res, next) => {
+  try {
+    const records = await Record.find();
+    res.send(records);
+  }
+  catch (err) { next(err) }
 };
 
-exports.addRecord = (req, res, next) => {
-  const record = req.body;
+exports.addRecord = async (req, res, next) => {
 
-  // What if there is no body
-  if (Object.keys(record).length === 0) {
-    const error = createError(
-      400,
+  // Assure that the user provides fields in the body...
+  if (Object.keys(req.body).length === 0) {
+    const err = createError.BadRequest(
       `You need to send the record info in the body of the request`
     );
-    next(error);
+    next(err);
   }
 
-  db.get('records')
-    .push({ ...record, ...{ id: Date.now().toString() } })
-    .write();
-  res.status(200).send(record);
-};
-
-exports.getRecord = (req, res, next) => {
-  const { id } = req.params;
-  const record = db.get('records').find({ id: id }).value();
-  if (!record) {
-    const error = createError(
-      400,
-      `There is no record with the id of ${id} dumboooo`
-    );
-    next(error);
+  try {
+    const recordNew = await Record.create(req.body)
+    res.send(recordNew);
   }
-
-  res.status(200).send(record);
+  catch(err) { next(err) }
 };
 
-exports.updateRecord = (req, res, next) => {
+exports.getRecord = async (req, res, next) => {
   const { id } = req.params;
-  const newRecord = req.body;
-  if (Object.keys(newRecord).length === 0) {
-    const error = createError(
-      400,
-      `Please send the right fields for updating a record`
-    );
-    next(error);
+  try {
+    const record = await Record.findById(id)
+    if(!record) {
+      throw new createError.NotFound()
+    }
+    res.send(record)
   }
-  const record = db
-    .get('records')
-    .find({ id: id })
-    .assign({ title: newRecord.title })
-    .write();
-  res.status(200).send(record);
+  catch(err) { next(err) }
 };
 
-exports.deleteRecord = (req, res, next) => {
+exports.updateRecord = async (req, res, next) => {
   const { id } = req.params;
-  const record = db
-    .get('records')
-    .remove({ id: id })
-    .write();
-  res.status(200).send(record);
+  try {
+    const recordUpdated = await Record.findByIdAndUpdate(id, req.body, { new: true })
+    if(!recordUpdated) {
+      throw new createError.NotFound()
+    }
+    res.send(recordUpdated);
+  }
+  catch(err) { next(err) }
+};
+
+exports.deleteRecord = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const recordDeleted = await Record.findByIdAndDelete(id)
+    if(!recordDeleted) {
+      throw new createError.NotFound()
+    }
+    res.send(recordDeleted);
+  }
+  catch(err) { next(err) }
 };

@@ -1,42 +1,63 @@
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('data/db.json');
-const db = low(adapter);
+const User = require("../models/User")
+const createError = require('http-errors');
 
-exports.getUsers = (req, res, next) => {
-  const users = db.get('users').value();
-  res.status(200).send(users);
+exports.getUsers = async (req, res, next) => {
+  try {
+    const users = await User.find();
+    res.send(users);
+  } 
+  catch (err) { next(err) }
 };
 
-exports.addUser = (req, res, next) => {
-  const user = req.body;
-  db.get('users')
-    .push({ ...user, ...{ id: Date.now().toString() } })
-    .write();
-  res.status(200).send(user);
+exports.addUser = async (req, res, next) => {
+
+  // Assure that the user provides fields in the body...
+  if (Object.keys(req.body).length === 0) {
+    const err = createError.BadRequest(
+      `You need to send the record info in the body of the request`
+    );
+    return next(err);
+  }
+
+  try {
+    const userNew = await User.create(req.body)
+    res.send(userNew);
+  }
+  catch(err) { next(err) }
 };
 
-exports.getUser = (req, res, next) => {
+exports.getUser = async (req, res, next) => {
   const { id } = req.params;
-  const user = db.get('users').find({ id: id }).value();
-  res.status(200).send(user);
+  try {
+    const user = await User.findById(id)
+    if(!user) {
+      throw new createError.NotFound()
+    }
+    res.send(user)
+  }
+  catch(err) { next(err) }
 };
 
-exports.updateUser = (req, res, next) => {
+exports.updateUser = async (req, res, next) => {
   const { id } = req.params;
-  const newUser = req.body;
-  const user = db
-    .get('users')
-    .find({ id: id })
-    .assign({ name: newUser.name })
-    .write();
-  res.status(200).send(user);
+  try {
+    const userUpdated = await User.findByIdAndUpdate(id, req.body, { new: true })
+    if(!userUpdated) {
+      throw new createError.NotFound()
+    }
+    res.send(userUpdated);
+  }
+  catch(err) { next(err) }
 };
 
-exports.deleteUser = (req, res, next) => {
+exports.deleteUser = async (req, res, next) => {
   const { id } = req.params;
-  const user = db.get('users').remove({ id: id }).write();
-  res
-    .status(200)
-    .send({ message: 'It has been done', user: user });
+  try {
+    const userDeleted = await User.findByIdAndDelete(id)
+    if(!userDeleted) {
+      throw new createError.NotFound()
+    }
+    res.send(userDeleted);
+  }
+  catch(err) { next(err) }
 };

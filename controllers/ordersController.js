@@ -1,40 +1,55 @@
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('data/db.json');
-const db = low(adapter);
+const Order = require("../models/Order");
+const createError = require("http-errors");
 
-exports.getOrders = (req, res, next) => {
-  const orders = db.get('orders').value();
-  res.status(200).send(orders);
+exports.getOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find();
+    res.send(orders);
+  } 
+  catch (err) { next(err) }
+};
+  
+exports.addOrder = async (req, res, next) => {
+  // pass in sent body fields into a new order
+  try {
+    const orderNew = await Order.create(req.body)
+    res.send(orderNew);
+  }
+  catch(err) { next(err) }
 };
 
-exports.addOrder = (req, res, next) => {
-  const order = req.body;
-  db.get('orders')
-    .push({ ...order, ...{ id: Date.now().toString() } })
-    .write();
-  res.status(200).send(order);
-};
-
-exports.getOrder = (req, res, next) => {
+exports.getOrder = async (req, res, next) => {
   const { id } = req.params;
-  const order = db.get('orders').find({ id: id }).value();
-  res.status(200).send(order);
+  try {
+    const order = await Order.findById(id)
+    if(!order) {
+      throw new createError.NotFound()
+    }
+    res.send(order)
+  }
+  catch(err) { next(err) }
 };
 
-exports.updateOrder = (req, res, next) => {
+exports.updateOrder = async (req, res, next) => {
   const { id } = req.params;
-  const newOrder = req.body;
-  const order = db
-    .get('orders')
-    .find({ id: id })
-    .assign({ product: newOrder.product })
-    .write();
-  res.status(200).send(order);
+  try {
+    const orderUpdated = await Order.findByIdAndUpdate(id, req.body, { new: true })
+    if(!orderUpdated) {
+      throw new createError.NotFound()
+    }
+    res.send(orderUpdated);
+  }
+  catch(err) { next(err) }
 };
 
-exports.deleteOrder = (req, res, next) => {
+exports.deleteOrder = async (req, res, next) => {
   const { id } = req.params;
-  const order = db.get('orders').remove({ id: id }).write();
-  res.status(200).send(order);
+  try {
+    const orderDeleted = await Order.findByIdAndDelete(id)
+    if(!orderDeleted) {
+      throw new createError.NotFound()
+    }
+    res.send(orderDeleted);
+  }
+  catch(err) { next(err) }
 };

@@ -1,5 +1,6 @@
 /**EXTERNAL DEPENDENCIES */
 const express = require('express');
+const mongoose = require('mongoose')
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -16,19 +17,21 @@ const { handleErrorPaths } = require('./middleware/errorPaths');
 const app = express();
 console.log('Server is up and running...');
 
+/** CONNECT TO DATABASE */
+mongoose.connect("mongodb://localhost/record-shop", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true
+})
+.then(() => "Connecton established")
+.catch(console.error)
+
+
 /** LOGS*/
 app.use(logger('dev'));
 
 /** CORS */
 app.use(cors());
-
-/**SETUP LOWDB */
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const { create } = require('domain');
-const adapter = new FileSync('data/db.json');
-const db = low(adapter);
-db.defaults({ records: [], users: [], orders: [] }).write();
 
 /** REQUEST PARSERS */
 app.use(express.json());
@@ -52,7 +55,9 @@ app.use(handleErrorPaths);
 /**ERROR MIDDLEWARE */
 // If anyone anywhere in the app calls next(error) then we end up here
 app.use((err, req, res, next) => {
-  res.status(err.status).send({
+  const errCode = err.status || 500
+  
+  res.status(errCode).send({
     error: {
       message: err.message,
     },

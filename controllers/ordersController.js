@@ -3,8 +3,11 @@ const createError = require("http-errors");
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find();
-    res.send(orders);
+    const orders = await Order.find()
+      .populate("records", "-__v -price -year"); 
+      // populate looks up the record by its ID - and nests it into the order document with all record info 
+    
+      res.send(orders);
   } 
   catch (err) { next(err) }
 };

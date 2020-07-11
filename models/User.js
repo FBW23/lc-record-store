@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-// currently we just plan to use an address in an order
+// currently we just plan to use an address in a user
 // once we use address also in other documents we will outsource the schema to an own file
 const AddressSchema = new Schema({
   street: {

@@ -1,58 +1,73 @@
-const Order = require("../models/Order");
-const createError = require("http-errors");
+const Order = require('../models/Order');
+const createError = require('http-errors');
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find()
-      .populate("records", "-__v -price -year"); 
-      // populate looks up the record by its ID - and nests it into the order document with all record info 
-    
-      res.send(orders);
-  } 
-  catch (err) { next(err) }
+    const orders = await Order.find().populate(
+      'records',
+      '-__v -price -year'
+    );
+    // populate looks up the record by its ID - and nests it into the order document with all record info
+
+    res.send(orders);
+  } catch (err) {
+    next(err);
+  }
 };
-  
+
 exports.addOrder = async (req, res, next) => {
   // pass in sent body fields into a new order
   try {
-    const orderNew = await Order.create(req.body)
+    const orderNew = await Order.create(req.body);
     res.send(orderNew);
+  } catch (err) {
+    next(err);
   }
-  catch(err) { next(err) }
 };
 
 exports.getOrder = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const order = await Order.findById(id)
-    if(!order) {
-      throw new createError.NotFound()
+    const order = await Order.findById(id).populate(
+      'records',
+      '-__v -price -year'
+    );
+
+    if (!order) {
+      throw new createError.NotFound();
     }
-    res.send(order)
+    res.send(order);
+  } catch (err) {
+    next(err);
   }
-  catch(err) { next(err) }
 };
 
 exports.updateOrder = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const orderUpdated = await Order.findByIdAndUpdate(id, req.body, { new: true })
-    if(!orderUpdated) {
-      throw new createError.NotFound()
+    const orderUpdated = await Order.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true }
+    );
+    if (!orderUpdated) {
+      throw new createError.NotFound();
     }
     res.send(orderUpdated);
+  } catch (err) {
+    next(err);
   }
-  catch(err) { next(err) }
 };
 
 exports.deleteOrder = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const orderDeleted = await Order.findByIdAndDelete(id)
-    if(!orderDeleted) {
-      throw new createError.NotFound()
+    const orderDeleted = await Order.findByIdAndDelete(id);
+    if (!orderDeleted) {
+      throw new createError.NotFound();
     }
     res.send(orderDeleted);
+  } catch (err) {
+    next(err);
   }
-  catch(err) { next(err) }
 };

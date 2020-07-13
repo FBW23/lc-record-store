@@ -15,8 +15,14 @@ exports.getUsers = async (req, res, next) => {
 
 exports.addUser = async (req, res, next) => {
   try {
-    const userNew = await User.create(req.body);
-    res.send(userNew);
+    const user = new User(req.body);
+    const token = user.generateToken();
+    await user.save();
+    res
+      .cookie('monster', token, {
+        expires: new Date(Date.now() + 900000),
+      })
+      .send(user);
   } catch (err) {
     next(err);
   }

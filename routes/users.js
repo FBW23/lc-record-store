@@ -13,9 +13,11 @@ const {
   deleteUser,
 } = require('../controllers/usersController');
 
+const auth = require('../middleware/authenticator');
+
 router
   .route('/')
-  .get(getUsers)
+  .get(auth, getUsers)
   .post(validationRules(), validateUser, addUser);
 
 router

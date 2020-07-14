@@ -19,7 +19,7 @@ exports.addUser = async (req, res, next) => {
     const token = user.generateToken();
     await user.save();
     res
-      .cookie('monster', token, {
+      .cookie('authToken', token, {
         expires: new Date(Date.now() + 900000),
       })
       .send(user);

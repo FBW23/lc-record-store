@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const jwt = require('jsonwebtoken');
+const { NotExtended } = require('http-errors');
 // currently we just plan to use an address in a user
 // once we use address also in other documents we will outsource the schema to an own file
 const AddressSchema = new Schema(
@@ -47,6 +48,22 @@ UserSchema.methods.generateToken = function () {
   );
 
   return token;
+};
+
+UserSchema.statics.findByToken = function (token) {
+  const User = this;
+  let decoded;
+  const ourKey = 'this is a string we choose freely';
+
+  try {
+    decoded = jwt.verify(token, ourKey);
+  } catch (error) {
+    return;
+  }
+
+  return User.findOne({
+    _id: decoded._id,
+  });
 };
 
 module.exports = mongoose.model('User', UserSchema);

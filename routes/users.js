@@ -22,8 +22,8 @@ router
 
 router
   .route('/:id')
-  .get(getUser)
-  .put(updateUser)
-  .delete(deleteUser);
+  .get(auth, getUser)
+  .put(auth, updateUser)
+  .delete(auth, deleteUser);
 
 module.exports = router;

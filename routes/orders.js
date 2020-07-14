@@ -7,13 +7,14 @@ const {
   updateOrder,
   deleteOrder,
 } = require('../controllers/ordersController');
+const auth = require('../middleware/authenticator');
 
-router.route('/').get(getOrders).post(addOrder);
+router.route('/').get(auth, getOrders).post(auth, addOrder);
 
 router
   .route('/:id')
-  .get(getOrder)
-  .put(updateOrder)
-  .delete(deleteOrder);
+  .get(auth, getOrder)
+  .put(auth, updateOrder)
+  .delete(auth, deleteOrder);
 
 module.exports = router;

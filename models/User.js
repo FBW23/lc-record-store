@@ -49,8 +49,8 @@ const UserSchema = new Schema({
   address: AddressSchema,
 });
 
-// UserSchema.methods => user.myFunc()
-// UserSchema.statics => User.myFunc()
+// UserSchema.methods => are called like this: user.myFunc()
+// UserSchema.statics => are called like this: User.myFunc()
 
 // user.checkPw // => user => this
 UserSchema.methods.checkPw = function(pwPlain) {
@@ -59,7 +59,9 @@ UserSchema.methods.checkPw = function(pwPlain) {
   return bcrypt.compareSync(pwPlain, user.password)
 }
 
-// res.send(user)
+// Whenever we call "res.send(user)" to send back user info
+// this function will be called by mongoose automatically
+// here we can hide fields that a frontend should never see
 UserSchema.methods.toJSON = function() {
   let user = this.toObject() // this == document instance => save()
   delete user["password"] // hide password field

@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const jwt = require('jsonwebtoken');
 const { NotExtended } = require('http-errors');
+const bcrypt = require('bcrypt');
+
+const ourSecret = 'this is a string we choose freely';
+
+
 // currently we just plan to use an address in a user
 // once we use address also in other documents we will outsource the schema to an own file
 const AddressSchema = new Schema(
@@ -35,28 +40,66 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String, // User, Admin
+    required: true,
+    enum: ["User", "Admin"],
+    default: "User"
+  },
   address: AddressSchema,
 });
 
+// UserSchema.methods => user.myFunc()
+// UserSchema.statics => User.myFunc()
+
+// user.checkPw // => user => this
+UserSchema.methods.checkPw = function(pwPlain) {
+  const user = this;
+  // compare the password received from the user with hashed one stored
+  return bcrypt.compareSync(pwPlain, user.password)
+}
+
+// res.send(user)
+UserSchema.methods.toJSON = function() {
+  let user = this.toObject() // this == document instance => save()
+  delete user["password"] // hide password field
+  return user
+}
+
 UserSchema.methods.generateToken = function () {
   const user = this;
-  const ourKey = 'this is a string we choose freely';
 
   const token = jwt.sign(
     { _id: user._id.toHexString() },
-    ourKey
+    ourSecret
   );
+
 
   return token;
 };
 
+// PRE SAVE HOOK / MIDDLEWARE
+UserSchema.pre("save", function() {
+  
+  try {
+    const user = this // => user.save() | user => this
+    if(user.isModified('password')) {
+      user.password = bcrypt.hashSync(user.password, 10)
+    }
+  }
+  catch(err) {
+    console.log(err)
+  }
+
+})
+
+
 UserSchema.statics.findByToken = function (token) {
   const User = this;
   let decoded;
-  const ourKey = 'this is a string we choose freely';
 
   try {
-    decoded = jwt.verify(token, ourKey);
+    decoded = jwt.verify(token, ourSecret);
   } catch (error) {
     return;
   }

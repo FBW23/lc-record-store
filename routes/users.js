@@ -11,14 +11,20 @@ const {
   getUser,
   updateUser,
   deleteUser,
+  loginUser
 } = require('../controllers/usersController');
 
 const auth = require('../middleware/authenticator');
+const isAdmin = require('../middleware/authorizer');
 
 router
   .route('/')
-  .get(auth, getUsers)
+  .get(auth, isAdmin, getUsers) // chaining middleware
   .post(validationRules(), validateUser, addUser);
+
+router
+  .route('/login')
+  .post(validationRules(), validateUser, loginUser)
 
 router
   .route('/:id')

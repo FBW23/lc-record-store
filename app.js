@@ -15,13 +15,17 @@ const {
   handleErrorPaths,
 } = require('./middleware/errorPaths');
 
+/** CONFIGS */
+const env = require('./config/config.js');
+
 /** INIT */
 const app = express();
 console.log('Server is up and running...');
 
+console.log(env);
 /** CONNECT TO DATABASE */
 mongoose
-  .connect('mongodb://localhost/record-shop', {
+  .connect(env.db, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,

@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
-    "watch": "DEBUG=lc-record-store:* nodemon --inspect --ignore 'data/*'",
+    "watch": "DEBUG=lc-record-store:* nodemon --inspect",
+    "remote": "NODE_ENV=production DEBUG=lc-record-store:* nodemon --inspect",
     "seed": "node seed/seed_db.js"
   },
   "dependencies": {

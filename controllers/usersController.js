@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const createError = require('http-errors');
 
-const loginDuration = 900000 // => 15 * 60 * 1000 => 15 minutes 
+const loginDuration = 900000; // => 15 * 60 * 1000 => 15 minutes
 
 exports.getUsers = async (req, res, next) => {
   try {
@@ -23,21 +23,25 @@ exports.getUsers = async (req, res, next) => {
  * Return it to the user as a cookie
  */
 exports.loginUser = async (req, res, next) => {
+  const { email, password } = req.body; // we receive password as plain text
 
-  const { email, password } = req.body // we receive password as plain text
+  let user = await User.findOne({ email });
 
-  let user = await User.findOne({ email })
-  
-   // user with that email does not exist
-  if(!user) {
-    next ( new createError.Unauthorized("User with given email does not exist") )
+  // user with that email does not exist
+  if (!user) {
+    next(
+      new createError.Unauthorized(
+        'User with given email does not exist'
+      )
+    );
   }
 
   // check passwords
-  if(!user.checkPw(password)) {
-    next ( new createError.Unauthorized("Password do not match") )
+  if (!user.checkPw(password)) {
+    next(
+      new createError.Unauthorized('Password do not match')
+    );
   }
-
 
   // user is know to us
   const token = user.generateToken();
@@ -47,11 +51,9 @@ exports.loginUser = async (req, res, next) => {
       expires: new Date(Date.now() + loginDuration),
     })
     .send(user);
-
-}
+};
 
 exports.addUser = async (req, res, next) => {
-  
   try {
     const user = new User(req.body);
 
@@ -63,7 +65,6 @@ exports.addUser = async (req, res, next) => {
         expires: new Date(Date.now() + loginDuration),
       })
       .send(user);
-
   } catch (err) {
     next(err);
   }

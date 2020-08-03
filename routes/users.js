@@ -11,7 +11,7 @@ const {
   getUser,
   updateUser,
   deleteUser,
-  loginUser
+  loginUser,
 } = require('../controllers/usersController');
 
 const auth = require('../middleware/authenticator');
@@ -24,7 +24,7 @@ router
 
 router
   .route('/login')
-  .post(validationRules(), validateUser, loginUser)
+  .post(validationRules(), validateUser, loginUser);
 
 router
   .route('/:id')
